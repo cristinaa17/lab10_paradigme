@@ -2,6 +2,7 @@ package main.java.dataprocessing;
 import main.java.storage.SensorData;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FilteredStepCountStrategy implements StepCountStrategy {
 
@@ -20,15 +21,15 @@ public class FilteredStepCountStrategy implements StepCountStrategy {
         if (sample.getStepsCount() <= 0) {
             return;
         }
-
-        long oneMinuteAgo = sample.getTimestamp() - 60000;
-
         history.add(sample);
-        List<SensorData> lastMinute = history.stream()
-                .filter(d -> d.getTimestamp() >= oneMinuteAgo)
-                .toList();
 
-        int lastMinuteSteps = lastMinute.stream()
+        long oneMinuteAgo = System.currentTimeMillis() - 60000;
+
+        List<SensorData> lastMinuteList = history.stream()
+                .filter(r -> r.getTimestamp() >= oneMinuteAgo)
+                .collect(Collectors.toList());
+
+        int lastMinuteSteps = lastMinuteList.stream()
                 .mapToInt(SensorData::getStepsCount)
                 .sum();
 
